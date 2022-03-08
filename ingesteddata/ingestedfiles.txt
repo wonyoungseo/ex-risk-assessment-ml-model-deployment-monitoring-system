@@ -1,0 +1,3 @@
+2022-03-08 16:16:33.604787	ingesteddata	finaldata.csv	26
+2022-03-08 16:16:35.531569	ingesteddata	finaldata.csv	26
+2022-03-08 16:16:36.791045	ingesteddata	finaldata.csv	26
