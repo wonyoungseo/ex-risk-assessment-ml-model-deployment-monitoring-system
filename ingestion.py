@@ -31,13 +31,15 @@ def clean_dataframe(df: pd.DataFrame):
 def save_dataframe(df, output_dir_name: str, file_name: str):
     df.to_csv(os.path.join(output_dir_name, file_name), sep=',', encoding='utf-8')
 
-def write_ingestion_record(file_name: str, output_file_dir, output_file_name, output_file_length):
 
-    with open(os.path.join(output_file_dir, file_name), 'a') as f:
-        f.write("{datetime}\t{location}\t{filename}\t{length}\n".format(datetime=datetime.now(),
-                                                                      location=output_file_dir,
-                                                                      filename=output_file_name,
-                                                                      length=output_file_length))
+def write_ingested_file_record(file_name: str, file_dir: str, ingested_file_loc: str, ingested_file_name: str, ingested_file_length: int):
+    with open(os.path.join(file_dir, file_name), 'a') as f:
+        f.write("{datetime}\t{location}\t{filename}\t{length}\n".format(
+            datetime=datetime.now(),
+            location=ingested_file_loc,
+            filename=ingested_file_name,
+            length=ingested_file_length
+        ))
 
 
 def merge_multiple_dataframe(input_folder_dir: str,
@@ -53,12 +55,11 @@ def merge_multiple_dataframe(input_folder_dir: str,
     for file_name in file_name_ls:
         df = read_tabular_file(input_folder_dir, file_name)
         df_list = df_list.append(df)
-
+        write_ingested_file_record(record_file_name, output_folder_dir,
+                                   input_folder_dir, file_name, len(df))
 
     df_list = clean_dataframe(df_list)
     save_dataframe(df_list, output_folder_path, output_file_name)
-    write_ingestion_record(record_file_name, output_folder_dir, output_file_name, len(df_list))
-
 
 
 if __name__ == '__main__':
