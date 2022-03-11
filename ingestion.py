@@ -29,7 +29,7 @@ def clean_dataframe(df: pd.DataFrame):
     return df
 
 def save_dataframe(df, output_dir_name: str, file_name: str):
-    df.to_csv(os.path.join(output_dir_name, file_name), sep=',', encoding='utf-8')
+    df.to_csv(os.path.join(output_dir_name, file_name), sep=',', encoding='utf-8', index=False)
 
 
 def write_ingested_file_record(file_name: str, file_dir: str, ingested_file_loc: str, ingested_file_name: str, ingested_file_length: int):
