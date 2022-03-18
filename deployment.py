@@ -1,12 +1,8 @@
-from flask import Flask, session, jsonify, request
-import pandas as pd
-import numpy as np
-import pickle
 import os
-from sklearn import metrics
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
+import sys
+import shutil
 import json
+
 
 
 
@@ -14,14 +10,23 @@ import json
 with open('config.json','r') as f:
     config = json.load(f) 
 
-dataset_csv_path = os.path.join(config['output_folder_path']) 
+model_path = os.path.join(config['output_model_path'],
+                          config['trained_model_name'])
+score_info_path = os.path.join(config['output_model_path'],
+                          config['score_output_name'])
+dataset_info_path = os.path.join(config['output_folder_path'],
+                                config['ingestion_record_file_name'])
 prod_deployment_path = os.path.join(config['prod_deployment_path']) 
 
 
 ####################function for deployment
-def store_model_into_pickle(model):
+def deploy_model(destination_path, *args):
     #copy the latest pickle file, the latestscore.txt value, and the ingestfiles.txt file into the deployment directory
+
+    for target in args:
+        shutil.copy(target, destination_path)
         
         
-        
+if __name__ == "__main__":
+    deploy_model(prod_deployment_path, model_path, score_info_path, dataset_info_path)
 
