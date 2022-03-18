@@ -1,12 +1,10 @@
-from flask import Flask, session, jsonify, request
-import pandas as pd
-import numpy as np
-import pickle
 import os
-from sklearn import metrics
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
 import json
+import pickle
+
+import pandas as pd
+from sklearn.linear_model import LogisticRegression
+
 
 ###################Load config.json and get path variables
 with open('config.json','r') as f:

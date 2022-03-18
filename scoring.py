@@ -1,11 +1,10 @@
-from flask import Flask, session, jsonify, request
-import pandas as pd
-import numpy as np
-import pickle
 import os
-from sklearn import metrics
-from sklearn.linear_model import LogisticRegression
 import json
+import pickle
+
+import pandas as pd
+from sklearn import metrics
+
 
 
 
