@@ -10,5 +10,7 @@
   "trained_model_name": "trainedmodel.pkl",
   "score_output_name" : "latestscore.txt",
   "feature_variable": ["lastmonth_activity", "lastyear_activity", "number_of_employees"],
-  "target_variable": "exited"
+  "target_variable": "exited",
+  "plot_file_name" : "confusionmatrix.png",
+  "api_result_name" : "apireturns.txt"
 }

@@ -6,7 +6,8 @@ import timeit
 import pickle
 
 import pandas as pd
-import numpy as np
+
+from scoring import load_model, load_test_data
 
 
 ##################Load config.json and get environment variables
@@ -19,12 +20,6 @@ test_data_path = os.path.join(config['test_data_path'],
 feature_columns = config['feature_variable']
 target_column = config['target_variable']
 
-def load_model(model_path):
-    return pickle.load(open(model_path, 'rb'))
-
-def load_test_data(test_data_path, feature_col, target_col):
-    df = pd.read_csv(test_data_path, encoding='utf-8', sep=',')
-    return df[feature_col], df[target_col]
 
 ##################Function to get model predictions
 def model_predictions(model_path, dataset_path, feature_col, target_col):
@@ -35,7 +30,7 @@ def model_predictions(model_path, dataset_path, feature_col, target_col):
     y_pred = model.predict(X_test)
     assert len(y_pred) == len(X_test), "length of model prediction output does not match the length of input dataset"
 
-    return y_pred
+    return y_pred, y_test
 
 ##################Function to get summary statistics
 def missing_data_summary(test_data_path):

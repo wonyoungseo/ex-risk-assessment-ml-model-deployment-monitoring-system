@@ -33,18 +33,21 @@ def write_score_output(score, output_path):
         f.write("f1_score : {}".format(score))
 
 #################Function for model scoring
-def score_model(trained_model, X_test, y_test, output_path):
+def score_model(trained_model, X_test, y_test, output_path=None, write_file=True):
     #this function should take a trained model, load test data, and calculate an F1 score for the model relative to the test data
     #it should write the result to the latestscore.txt file
 
     y_pred = trained_model.predict(X_test)
     f1_output = cal_f1_score(y_test, y_pred)
-    write_score_output(f1_output, output_path)
+    if write_file:
+        write_score_output(f1_output, output_path)
+    else:
+        return f1_output
 
 
 
 if __name__ == "__main__":
     trained_model = load_model(model_path)
     X_test, y_test = load_test_data(test_data_path, feature_var, target_var)
-    score_model(trained_model, X_test, y_test,  output_path)
+    score_model(trained_model, X_test, y_test, output_path=output_path, write_file=True)
 
