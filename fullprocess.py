@@ -7,15 +7,16 @@ import scoring
 import deployment
 import diagnostics
 import reporting
+import apicalls
 
 with open("config.json", "r") as f:
     config = json.load(f)
 
-input_folder_path= config['input_folder_path']
+input_folder_path= "./sourcedata"
 output_folder_path= config['output_folder_path']
 test_data_path= config['test_data_path']
 test_data_name= config['test_data_name']
-output_model_path= config['output_model_path']
+output_model_path= "./models"
 prod_deployment_path= config['prod_deployment_path']
 ingestion_file_name= config['ingestion_file_name']
 ingestion_record_file_name= config['ingestion_record_file_name']
@@ -26,7 +27,7 @@ target_variable= config['target_variable']
 plot_file_name = config['plot_file_name']
 api_result_name = config['api_result_name']
 
-def main():
+def redeploy():
     ##################Check and read new data
     #first, read ingestedfiles.txt
     ingested_files =[]
@@ -34,10 +35,12 @@ def main():
         for line in report_file:
             ingested_files.append(line.split('\t')[2])
 
+
     #second, determine whether the source data folder has files that aren't listed in ingestedfiles.txt
     new_files = False
     for filename in os.listdir(input_folder_path):
-        if input_folder_path + "/" + filename not in ingested_files:
+#         if input_folder_path + "/" + filename not in set(ingested_files):
+        if filename not in set(ingested_files):
             new_files = True
 
 
@@ -55,14 +58,20 @@ def main():
                                        ingestion_record_file_name)
 
     trained_model = scoring.load_model(model_path=os.path.join(output_model_path, trained_model_name))
-    X_test, y_test = scoring.load_test_data(test_data_path, feature_variable, target_variable)
-    scoring.score_model()
+    X_test, y_test = scoring.load_test_data(os.path.join(test_data_path, test_data_name), 
+                                            feature_variable, target_variable)
+    scoring.score_model(trained_model, X_test, y_test, 
+                        os.path.join(output_model_path, score_output_name),
+                        write_file=True)
 
     with open(os.path.join(prod_deployment_path, "latestscore.txt"), "r") as report_file:
-        old_f1 = float(report_file.read())
+        old_f1 = report_file.read()
+        old_f1 = float(old_f1.replace("f1_score : ", ""))
+        
 
     with open(os.path.join(output_model_path, "latestscore.txt"), "r") as report_file:
-        new_f1 = float(report_file.read())
+        new_f1 = report_file.read()
+        new_f1 = float(new_f1.replace("f1_score : ", ""))
 
     ##################Deciding whether to proceed, part 2
     #if you found model drift, you should proceed. otherwise, do end the process here
@@ -71,7 +80,7 @@ def main():
         return None
     else:
         print("Actual F1-score({}) is WORSE than old F1-score({}). Drift detected -> Training model".format(new_f1, old_f1))
-        training.train_model()
+        training.train_model(X_test, y_test, os.path.join(output_model_path, trained_model_name))
 
         ##################Re-deployment
         #if you found evidence for model drift, re-run the deployment.py script
@@ -94,12 +103,19 @@ def main():
         diagnostics.execution_time('training.py', 'ingestion.py')
         diagnostics.outdated_packages_list()
 
-        reporting.score_model(os.path.join(config['output_model_path'], config['trained_model_name']),
-                              os.path.join(config['test_data_path'], config['test_data_name']),
-                              feature_variable,
-                              target_variable,
-                              plot_file_name)
+
 
 
 if __name__ == "__main__":
-    main()
+    # redeployment
+    redeploy()
+
+    # apicalls
+    apicalls.main()
+
+    # reporting
+    reporting.score_model(os.path.join(config['output_model_path'], config['trained_model_name']),
+                          os.path.join(config['test_data_path'], config['test_data_name']),
+                          feature_variable,
+                          target_variable,
+                          plot_file_name)
